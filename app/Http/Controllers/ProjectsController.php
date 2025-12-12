@@ -54,4 +54,11 @@ class ProjectsController extends Controller
 
     return redirect()->route('login');
   }
+
+  public function search(Request $request)
+  {
+    $search = $request->input('search');
+    $projects = Project::where('project_name', 'like', "%$search%")->get();
+    return view('layouts.components.search-results', compact('projects'));
+  }
 }

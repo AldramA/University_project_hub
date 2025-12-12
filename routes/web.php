@@ -58,6 +58,8 @@ Route::prefix('student')->name('student.')->group(function () {
     Route::get('/project/{id}', [ProjectsController::class, 'projectPage'])->name('project');
 
     Route::get('/logout', [CommonController::class, 'logout'])->name('logout');
+
+    Route::post('/project-search', [ProjectsController::class, 'search'])->name('project-search');
   });
 });
 
@@ -71,8 +73,7 @@ Route::prefix('doctor')->name('doctor.')->group(function () {
     Route::get('/home', [DoctorController::class, 'home'])->name('home');
     Route::get('/dashboard', [DoctorController::class, 'dashboard'])->name('dashboard');
     Route::get('/project/{id}', [ProjectsController::class, 'projectPage'])->name('project');
-
-    });
+  });
 });
 
 // ==================
