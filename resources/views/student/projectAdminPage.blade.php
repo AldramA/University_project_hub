@@ -30,6 +30,24 @@
             </div>
           </form>
         </div>
+        <div class="card mb-md">
+          <h2 class="section-title">Doctor's Comments</h2>
+          @foreach ($comments as $comment)
+            <div class="p-md" style="
+                            background-color: var(--background-color);
+                            border-radius: var(--radius-md);
+                          ">
+              <div class="flex justify-between mb-sm">
+                <strong>Dr. Ahmed Ali</strong>
+                <span class="text-secondary"
+                  style="font-size: var(--font-size-sm)">{{ $comment->created_at->diffForHumans() }}</span>
+              </div>
+              <p>
+                {{ $comment->comment_text }}
+              </p>
+            </div>
+          @endforeach
+        </div>
       </div>
 
       <!-- Sidebar -->
@@ -38,54 +56,65 @@
           <h2 class="section-title">Team Members</h2>
           <ul class="flex flex-col gap-sm">
             <li class="flex items-center gap-sm">
+              @php
+                $adminName = $project->admin->full_name;
+                $initials = collect(explode(' ', $adminName))
+                  ->map(fn($n) => mb_substr($n, 0, 1))
+                  ->take(2)
+                  ->join('');
+              @endphp
               <div style="
-                      width: 32px;
-                      height: 32px;
-                      background-color: var(--primary-color);
-                      border-radius: 50%;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      color: white;
-                      font-size: 12px;
-                    ">
-                MS
+                                width: 32px;
+                                height: 32px;
+                                background-color: var(--primary-color);
+                                border-radius: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                color: white;
+                                font-size: 12px;
+                              ">
+                {{ $initials }}
               </div>
               <div>
-                <div style="font-weight: bold">Mohamed Sobhy</div>
+                <div style="font-weight: bold">{{ $adminName }}</div>
                 <span class="badge badge-success" style="font-size: 0.7rem">Admin</span>
               </div>
             </li>
-            <li class="flex items-center gap-sm">
-              <div style="
-                      width: 32px;
-                      height: 32px;
-                      background-color: var(--secondary-color);
-                      border-radius: 50%;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      color: white;
-                      font-size: 12px;
-                    ">
-                AH
-              </div>
-              <div>Ahmed Hassan</div>
-            </li>
+            @foreach ($members as $member)
+              @php
+                $name = $member->student?->full_name;
+                $initials = collect(explode(' ', $name))
+                  ->map(fn($n) => mb_substr($n, 0, 1))
+                  ->take(2)
+                  ->join('');
+              @endphp
+              <li class="flex items-center gap-sm">
+                <div style="
+                                          width: 32px;
+                                          height: 32px;
+                                          background-color: var(--secondary-color);
+                                          border-radius: 50%;
+                                          display: flex;
+                                          align-items: center;
+                                          justify-content: center;
+                                          color: white;
+                                          font-size: 12px;
+                                        ">
+                  {{ $initials }}
+                </div>
+                <div>{{ $member->student->full_name }}</div>
+              </li>
+            @endforeach
           </ul>
         </div>
 
-        <div class="card mb-md">
-          <h2 class="section-title">Actions</h2>
-          <a href="Portfolio.html" class="btn btn-outline btn-block mb-sm">Edit Portfolio</a>
-          <a href="ProjectPage.html" class="btn btn-outline btn-block">View as Member</a>
-        </div>
         <div class="card">
           <h2 class="section-title">Join Requests</h2>
           <div class="p-md border rounded" style="
-                  border: 1px solid var(--border-color);
-                  border-radius: var(--radius-md);
-                ">
+                        border: 1px solid var(--border-color);
+                        border-radius: var(--radius-md);
+                      ">
             <div class="flex justify-between items-center">
               <div>
                 <strong>Ahmed Abdullah</strong>

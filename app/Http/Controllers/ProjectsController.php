@@ -49,10 +49,12 @@ class ProjectsController extends Controller
 
     $student = auth()->guard('student')->user();
     if ($student) {
+      $comments = Comment::where('project_id', $id)->get();
       if ($student->student_id == $project->admin_id) {
-        return view('student.projectAdminPage', compact('project', 'members'));
+
+        return view('student.projectAdminPage', compact('project', 'members', 'comments'));
       } else {
-        return view('student.projectPage', compact('project', 'members'));
+        return view('student.projectPage', compact('project', 'members', 'comments'));
       }
     }
 
@@ -88,7 +90,7 @@ class ProjectsController extends Controller
       'doctor_id'    => auth()->guard('doctor')->user()->doctor_id,
     ]);
 
-  
+
     return redirect()
       ->route('doctor.home')
       ->with('success', 'Comment added successfully');
