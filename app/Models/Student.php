@@ -13,6 +13,11 @@ class Student extends Authenticatable
 
   public $timestamps = false;
 
+  public function projectMembers()
+  {
+    return $this->hasMany(ProjectMember::class, 'student_id');
+  }
+
   protected $fillable = [
     'full_name',
     'email',
@@ -28,7 +33,7 @@ class Student extends Authenticatable
   public function getYearLabelAttribute(): string
   {
     return match ($this->year) {
-      '1' => 'First Year', 
+      '1' => 'First Year',
       '2' => 'Second Year',
       '3' => 'Third Year',
       '4' => 'Fourth Year',

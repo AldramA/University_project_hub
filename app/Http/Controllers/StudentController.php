@@ -51,9 +51,10 @@ class StudentController extends Controller
     return redirect()->route('student.home')
       ->with('success', 'Registration successful!');
   }
-  /**
+
+  /**==================
    * Student Home Page
-   */
+  ====================*/
   public function home()
   {
     $student = Auth::guard('student')->user();
@@ -66,18 +67,18 @@ class StudentController extends Controller
     return view('student.home', compact('student', 'projects'));
   }
 
-  /**
+  /**==================
    * Student Join Project Page
-   */
+  ====================*/
   public function joinProject()
   {
 
     return view('student.joinProject');
   }
 
-  /**
+  /**==================
    * Student Profile Page
-   */
+  ====================*/
   public function profile($id)
   {
     $student = Auth::guard('student')->user();

@@ -74,6 +74,8 @@ Route::prefix('doctor')->name('doctor.')->group(function () {
     Route::get('/dashboard', [DoctorController::class, 'dashboard'])->name('dashboard');
     Route::get('/project/{id}', [ProjectsController::class, 'projectPage'])->name('project');
   });
+
+  Route::post('/project/{id}/comment', [ProjectsController::class, 'storeComment'])->name('project.comment');
 });
 
 // ==================

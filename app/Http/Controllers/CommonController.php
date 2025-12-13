@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Auth;
 
 class CommonController extends Controller
 {
-  /**
+  /**==================
    * Login
-   */
+  ====================*/
   public function login(Request $request)
   {
     // Validate credentials
@@ -44,9 +44,9 @@ class CommonController extends Controller
     ]);
   }
 
-  /**
+  /**============
    * Logout
-   */
+  ==============*/
   public function logout(Request $request)
   {
     if (Auth::guard('student')->check()) {
