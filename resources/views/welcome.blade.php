@@ -204,8 +204,8 @@
     </div>
 
     <div class="cta-buttons">
-      <button class="btn btn-primary" onclick="alert('Navigate to Browse Projects')">Browse Projects</button>
-      <button class="btn btn-secondary" onclick="alert('Navigate to Create Project')">Create Project</button>
+      <button class="btn btn-primary" onclick="window.location.href = '{{ route('login') }}'">Login</button>
+      <button class="btn btn-secondary" onclick="window.location.href = '{{ route('register') }}'">Register</button>
     </div>
   </div>
 </body>

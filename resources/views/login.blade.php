@@ -216,7 +216,9 @@
           Sign In
         </button>
       </form>
-
+      <p style="margin-top: 20px; margin-bottom: 20px;" class="text-center">
+        Don't have an account? <a href="{{ route('register') }}">Register</a>
+      </p>
     </div>
   </div>
 </body>

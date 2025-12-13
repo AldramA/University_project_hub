@@ -4,11 +4,11 @@
 
     <div class="container">
       <div class="flex justify-between items-center mb-lg">
-        <h1 class="page-title">Warehouse Management System</h1>
+        <h1 class="page-title">{{ $project->project_name }}</h1>
         <span
           class="badge badge-info"
           style="font-size: 1rem; padding: 0.5rem 1rem"
-          >In Progress</span
+          >{{ $project->project_status }}</span
         >
       </div>
 

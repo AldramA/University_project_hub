@@ -31,7 +31,7 @@ Route::get('/logout', [CommonController::class, 'logout'])->name('logout');
 
 Route::get('/register', function () {
   return view('student.register');
-})->name('student.register');
+})->name('register');
 
 // ==================
 // Student Routes

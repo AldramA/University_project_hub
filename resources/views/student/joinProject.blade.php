@@ -17,20 +17,21 @@
     <!-- Search Section -->
     <div class="card mb-lg">
       <div class="flex gap-sm">
-        <form action="{{ route('student.project-search') }}" method="post">
+        <form action="{{ route('student.project-search') }}" method="post" target="resultsFrame">
           @csrf
           <input name="search" type="text" class="form-input" placeholder="Search for projects..." style="flex: 1" />
           <button type="submit" class="btn btn-primary">Search</button>
         </form>
+
       </div>
     </div>
 
     <!-- Results -->
     <h2 class="section-title">Available Projects</h2>
 
-    <div class="grid md:grid-cols-2 gap-md">
-      <iframe name="resultsFrame" style="width:100%; height:400px; border:0;"></iframe>
-    </div>
+
+    <iframe name="resultsFrame" style="width:100%; height:500px; border:0;"></iframe>
+
   </div>
 
 @endsection

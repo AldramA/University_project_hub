@@ -9,15 +9,15 @@
 </head>
 
 <body>
-@if ($errors->any())
-  <div class="alert alert-danger">
-    <ul>
-      @foreach ($errors->all() as $error)
-        <li>{{ $error }}</li>
-      @endforeach
-    </ul>
-  </div>
-@endif
+  @if ($errors->any())
+    <div class="alert alert-danger">
+      <ul>
+        @foreach ($errors->all() as $error)
+          <li>{{ $error }}</li>
+        @endforeach
+      </ul>
+    </div>
+  @endif
 
   <div class="auth-container">
     <div class="card" style="width: 100%; max-width: 500px">
@@ -28,7 +28,7 @@
         Enter your details to register
       </p>
 
-      <form action="/register" method="POST">
+      <form action="{{ route('student.register') }}" method="POST">
         @csrf
         <div class="form-group">
           <label class="form-label">Full Name</label>
