@@ -101,6 +101,19 @@ class StudentController extends Controller
       abort(403, 'Unauthorized access to this page.');
     }
 
-    return view('student.profile', compact('student'));
+    // Get projects where student is admin
+    $adminProjects = Project::where('admin_id', $student->student_id)->get();
+
+    // Get projects where student is a member (approved)
+    $memberProjectIds = ProjectMember::where('student_id', $student->student_id)
+      ->where('join_status', 'approved')
+      ->pluck('project_id');
+
+    $memberProjects = Project::whereIn('project_id', $memberProjectIds)->get();
+
+    // Combine both collections
+    $projects = $adminProjects->merge($memberProjects)->unique('project_id');
+
+    return view('student.profile', compact('student', 'projects'));
   }
 }

@@ -246,4 +246,30 @@ class ProjectsController extends Controller
 
     return back()->with('success', 'Project graded successfully!');
   }
+
+  /**==================
+   * Update Project Links (Student Admin)
+  ====================*/
+  public function updateProjectLinks(Request $request, $id)
+  {
+    $project = Project::findOrFail($id);
+    $student = auth()->guard('student')->user();
+
+    // Authorization: Only project admin can update links
+    if ($student->student_id != $project->admin_id) {
+      return back()->withErrors(['error' => 'You are not authorized to update this project.']);
+    }
+
+    $validated = $request->validate([
+      'github_link' => ['nullable', 'url', 'max:500'],
+      'project_link' => ['nullable', 'url', 'max:500'],
+    ]);
+
+    $project->update([
+      'github_link' => $validated['github_link'],
+      'project_link' => $validated['project_link'],
+    ]);
+
+    return back()->with('success', 'Project links updated successfully!');
+  }
 }

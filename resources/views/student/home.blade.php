@@ -33,6 +33,8 @@
       @forelse ($projects as $project)
         @php
           $statusLabels = ['not_graded' => 'Not Graded Yet', 'submitted' => 'Submitted', 'needs_work' => 'Needs More Work', 'pending' => 'Not Graded Yet'];
+          $statusColors = ['not_graded' => '#6b7280', 'submitted' => '#10b981', 'needs_work' => '#f59e0b', 'pending' => '#6b7280'];
+          $statusColor = $statusColors[$project->status] ?? '#6b7280';
         @endphp
         <!-- Project Card -->
         <div class="card">
@@ -40,7 +42,8 @@
             <h3 style="font-weight: bold; font-size: var(--font-size-lg)">
               {{$project->project_name}}
             </h3>
-            <span class="badge badge-info">{{ $statusLabels[$project->status] ?? ucfirst($project->status) }}</span>
+            <span class="badge"
+              style="background-color: {{ $statusColor }}; color: white;">{{ $statusLabels[$project->status] ?? ucfirst($project->status) }}</span>
           </div>
           <p class="text-secondary mb-md" style="font-size: var(--font-size-sm)">
             {{$project->description}}
@@ -48,9 +51,9 @@
 
           @if($project->grade !== null)
             <div class="mb-md p-md" style="
-                                background-color: var(--background-color);
-                                border-radius: var(--radius-md);
-                              ">
+                                      background-color: var(--background-color);
+                                      border-radius: var(--radius-md);
+                                    ">
               <p class="text-secondary" style="font-size: 0.8rem; margin-bottom: 4px">
                 Grade:
               </p>

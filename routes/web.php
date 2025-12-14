@@ -63,6 +63,9 @@ Route::prefix('student')->name('student.')->group(function () {
     // Join request approval routes (admin only within project)
     Route::post('/approve-request/{id}', [ProjectsController::class, 'approveJoinRequest'])->name('approve-request');
     Route::post('/reject-request/{id}', [ProjectsController::class, 'rejectJoinRequest'])->name('reject-request');
+
+    // Project links update (admin only)
+    Route::post('/project/{id}/update-links', [ProjectsController::class, 'updateProjectLinks'])->name('update-project-links');
   });
 });
 

@@ -7,9 +7,11 @@
       <h1 class="page-title">{{ $project->project_name }} (Admin View)</h1>
       @php
         $statusLabels = ['not_graded' => 'Not Graded Yet', 'submitted' => 'Submitted', 'needs_work' => 'Needs More Work', 'pending' => 'Not Graded Yet'];
+        $statusColors = ['not_graded' => '#6b7280', 'submitted' => '#10b981', 'needs_work' => '#f59e0b', 'pending' => '#6b7280'];
+        $statusColor = $statusColors[$project->status] ?? '#6b7280';
       @endphp
-      <span class="badge badge-info"
-        style="font-size: 1rem; padding: 0.5rem 1rem">{{ $statusLabels[$project->status] ?? ucfirst($project->status) }}</span>
+      <span class="badge"
+        style="font-size: 1rem; padding: 0.5rem 1rem; background-color: {{ $statusColor }}; color: white;">{{ $statusLabels[$project->status] ?? ucfirst($project->status) }}</span>
     </div>
 
     @if ($errors->any())
@@ -39,24 +41,29 @@
         </div>
 
         <div class="card mb-md">
-          <h2 class="section-title">Project Settings</h2>
-          <form>
+          <h2 class="section-title">Project Links</h2>
+          <form action="{{ route('student.update-project-links', $project->project_id) }}" method="POST">
+            @csrf
             <div class="form-group">
-              <label class="form-label">Project Link (GitHub / Drive)</label>
-              <div class="flex gap-sm">
-                <input type="url" class="form-input" value="{{ $project->project_link }}" placeholder="https://..." />
-                <button type="submit" class="btn btn-primary">Save</button>
-              </div>
+              <label class="form-label">GitHub Repository</label>
+              <input type="url" name="github_link" class="form-input" value="{{ $project->github_link }}"
+                placeholder="https://github.com/..." />
             </div>
+            <div class="form-group">
+              <label class="form-label">Drive / Project Link</label>
+              <input type="url" name="project_link" class="form-input" value="{{ $project->project_link }}"
+                placeholder="https://drive.google.com/..." />
+            </div>
+            <button type="submit" class="btn btn-primary">Save Links</button>
           </form>
         </div>
         <div class="card mb-md">
           <h2 class="section-title">Doctor's Comments</h2>
           @forelse ($comments as $comment)
             <div class="p-md mb-sm" style="
-                                            background-color: var(--background-color);
-                                            border-radius: var(--radius-md);
-                                          ">
+                                                    background-color: var(--background-color);
+                                                    border-radius: var(--radius-md);
+                                                  ">
               <div class="flex justify-between mb-sm">
                 <strong>{{ $comment->doctor->full_name ?? 'Doctor' }}</strong>
                 <span class="text-secondary"
@@ -86,16 +93,16 @@
                   ->join('');
               @endphp
               <div style="
-                                          width: 32px;
-                                          height: 32px;
-                                          background-color: var(--primary-color);
-                                          border-radius: 50%;
-                                          display: flex;
-                                          align-items: center;
-                                          justify-content: center;
-                                          color: white;
-                                          font-size: 12px;
-                                        ">
+                                              width: 32px;
+                                              height: 32px;
+                                              background-color: var(--primary-color);
+                                              border-radius: 50%;
+                                              display: flex;
+                                              align-items: center;
+                                              justify-content: center;
+                                              color: white;
+                                              font-size: 12px;
+                                            ">
                 {{ $initials }}
               </div>
               <div>
@@ -113,16 +120,16 @@
               @endphp
               <li class="flex items-center gap-sm">
                 <div style="
-                                                              width: 32px;
-                                                              height: 32px;
-                                                              background-color: var(--secondary-color);
-                                                              border-radius: 50%;
-                                                              display: flex;
-                                                              align-items: center;
-                                                              justify-content: center;
-                                                              color: white;
-                                                              font-size: 12px;
-                                                            ">
+                                                                      width: 32px;
+                                                                      height: 32px;
+                                                                      background-color: var(--secondary-color);
+                                                                      border-radius: 50%;
+                                                                      display: flex;
+                                                                      align-items: center;
+                                                                      justify-content: center;
+                                                                      color: white;
+                                                                      font-size: 12px;
+                                                                    ">
                   {{ $initials }}
                 </div>
                 <div>{{ $member->student->full_name }}</div>
@@ -150,9 +157,9 @@
           <h2 class="section-title">Join Requests</h2>
           @forelse ($joinRequests as $request)
             <div class="p-md border rounded mb-sm" style="
-                                              border: 1px solid var(--border-color);
-                                              border-radius: var(--radius-md);
-                                            ">
+                                                      border: 1px solid var(--border-color);
+                                                      border-radius: var(--radius-md);
+                                                    ">
               <div class="flex justify-between items-center">
                 <div>
                   <strong>{{ $request->student->full_name ?? 'Unknown' }}</strong>

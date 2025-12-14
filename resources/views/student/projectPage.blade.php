@@ -7,9 +7,11 @@
       <h1 class="page-title">{{ $project->project_name }}</h1>
       @php
         $statusLabels = ['not_graded' => 'Not Graded Yet', 'submitted' => 'Submitted', 'needs_work' => 'Needs More Work', 'pending' => 'Not Graded Yet'];
+        $statusColors = ['not_graded' => '#6b7280', 'submitted' => '#10b981', 'needs_work' => '#f59e0b', 'pending' => '#6b7280'];
+        $statusColor = $statusColors[$project->status] ?? '#6b7280';
       @endphp
-      <span class="badge badge-info"
-        style="font-size: 1rem; padding: 0.5rem 1rem">{{ $statusLabels[$project->status] ?? ucfirst($project->status) }}</span>
+      <span class="badge"
+        style="font-size: 1rem; padding: 0.5rem 1rem; background-color: {{ $statusColor }}; color: white;">{{ $statusLabels[$project->status] ?? ucfirst($project->status) }}</span>
     </div>
 
     <div class="grid md:grid-cols-3 gap-lg">
@@ -37,9 +39,9 @@
           <h2 class="section-title">Doctor's Comments</h2>
           @forelse ($comments as $comment)
             <div class="p-md mb-sm" style="
-                                background-color: var(--background-color);
-                                border-radius: var(--radius-md);
-                              ">
+                                    background-color: var(--background-color);
+                                    border-radius: var(--radius-md);
+                                  ">
               <div class="flex justify-between mb-sm">
                 <strong>{{ $comment->doctor->full_name ?? 'Doctor' }}</strong>
                 <span class="text-secondary"
@@ -82,16 +84,16 @@
                   ->join('');
               @endphp
               <div style="
-                                    width: 32px;
-                                    height: 32px;
-                                    background-color: var(--primary-color);
-                                    border-radius: 50%;
-                                    display: flex;
-                                    align-items: center;
-                                    justify-content: center;
-                                    color: white;
-                                    font-size: 12px;
-                                  ">
+                                      width: 32px;
+                                      height: 32px;
+                                      background-color: var(--primary-color);
+                                      border-radius: 50%;
+                                      display: flex;
+                                      align-items: center;
+                                      justify-content: center;
+                                      color: white;
+                                      font-size: 12px;
+                                    ">
                 {{ $initials }}
               </div>
               <div>
@@ -109,16 +111,16 @@
               @endphp
               <li class="flex items-center gap-sm">
                 <div style="
-                                                  width: 32px;
-                                                  height: 32px;
-                                                  background-color: var(--secondary-color);
-                                                  border-radius: 50%;
-                                                  display: flex;
-                                                  align-items: center;
-                                                  justify-content: center;
-                                                  color: white;
-                                                  font-size: 12px;
-                                                ">
+                                                      width: 32px;
+                                                      height: 32px;
+                                                      background-color: var(--secondary-color);
+                                                      border-radius: 50%;
+                                                      display: flex;
+                                                      align-items: center;
+                                                      justify-content: center;
+                                                      color: white;
+                                                      font-size: 12px;
+                                                    ">
                   {{ $initials }}
                 </div>
                 <div>{{ $member->student->full_name }}</div>
