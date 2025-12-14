@@ -52,8 +52,11 @@ class ProjectsController extends Controller
     if ($student) {
       $comments = Comment::where('project_id', $id)->get();
       if ($student->student_id == $project->admin_id) {
-
-        return view('student.projectAdminPage', compact('project', 'members', 'comments'));
+        // Get pending join requests for admin view
+        $joinRequests = JoinRequest::where('project_id', $id)
+          ->where('status', 'pending')
+          ->get();
+        return view('student.projectAdminPage', compact('project', 'members', 'comments', 'joinRequests'));
       } else {
         return view('student.projectPage', compact('project', 'members', 'comments'));
       }
@@ -140,5 +143,59 @@ class ProjectsController extends Controller
     ]);
 
     return redirect()->route('student.join-project')->with('success', 'Join request sent successfully! Waiting for approval.');
+  }
+
+  /**==================
+   * Approve Join Request
+  ====================*/
+  public function approveJoinRequest($id)
+  {
+    $request = JoinRequest::findOrFail($id);
+    $project = Project::findOrFail($request->project_id);
+    $student = auth()->guard('student')->user();
+
+    // Authorization: Only project admin can approve
+    if ($student->student_id != $project->admin_id) {
+      return back()->withErrors(['error' => 'You are not authorized to approve this request.']);
+    }
+
+    // Update request status
+    $request->update([
+      'status' => 'approved',
+      'responded_at' => now(),
+    ]);
+
+    // Add student as project member
+    ProjectMember::create([
+      'project_id' => $request->project_id,
+      'student_id' => $request->student_id,
+      'role' => 'member',
+      'join_status' => 'approved',
+    ]);
+
+    return back()->with('success', 'Join request approved successfully!');
+  }
+
+  /**==================
+   * Reject Join Request
+  ====================*/
+  public function rejectJoinRequest($id)
+  {
+    $request = JoinRequest::findOrFail($id);
+    $project = Project::findOrFail($request->project_id);
+    $student = auth()->guard('student')->user();
+
+    // Authorization: Only project admin can reject
+    if ($student->student_id != $project->admin_id) {
+      return back()->withErrors(['error' => 'You are not authorized to reject this request.']);
+    }
+
+    // Update request status
+    $request->update([
+      'status' => 'rejected',
+      'responded_at' => now(),
+    ]);
+
+    return back()->with('success', 'Join request rejected.');
   }
 }

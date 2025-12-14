@@ -13,4 +13,14 @@ class Comment extends Model
         'project_id',
         'doctor_id',
     ];
+
+    public function doctor()
+    {
+        return $this->belongsTo(Doctor::class, 'doctor_id', 'doctor_id');
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'project_id', 'project_id');
+    }
 }

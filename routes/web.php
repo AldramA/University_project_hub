@@ -57,8 +57,12 @@ Route::prefix('student')->name('student.')->group(function () {
     Route::get('/project/{id}', [ProjectsController::class, 'projectPage'])->name('project');
 
     Route::post('/project-search', [ProjectsController::class, 'search'])->name('project-search');
-    
+
     Route::post('/request-join-project/{id}', [ProjectsController::class, 'requestJoinProject'])->name('request-join-project');
+
+    // Join request approval routes (admin only within project)
+    Route::post('/approve-request/{id}', [ProjectsController::class, 'approveJoinRequest'])->name('approve-request');
+    Route::post('/reject-request/{id}', [ProjectsController::class, 'rejectJoinRequest'])->name('reject-request');
   });
 });
 

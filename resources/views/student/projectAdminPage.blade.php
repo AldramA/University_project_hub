@@ -5,8 +5,24 @@
   <div class="container">
     <div class="flex justify-between items-center mb-lg">
       <h1 class="page-title">{{ $project->project_name }} (Admin View)</h1>
-      <span class="badge badge-info" style="font-size: 1rem; padding: 0.5rem 1rem">{{ $project->status }}</span>
+      <span class="badge badge-info" style="font-size: 1rem; padding: 0.5rem 1rem">{{ ucfirst($project->status) }}</span>
     </div>
+
+    @if ($errors->any())
+      <div class="alert alert-danger"
+        style="background: #ef4444; color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+        @foreach ($errors->all() as $error)
+          {{ $error }}
+        @endforeach
+      </div>
+    @endif
+
+    @if (session('success'))
+      <div class="alert alert-success"
+        style="background: #10b981; color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+        {{ session('success') }}
+      </div>
+    @endif
 
     <div class="grid md:grid-cols-3 gap-lg">
       <!-- Main Content -->
@@ -32,13 +48,13 @@
         </div>
         <div class="card mb-md">
           <h2 class="section-title">Doctor's Comments</h2>
-          @foreach ($comments as $comment)
-            <div class="p-md" style="
-                            background-color: var(--background-color);
-                            border-radius: var(--radius-md);
-                          ">
+          @forelse ($comments as $comment)
+            <div class="p-md mb-sm" style="
+                                    background-color: var(--background-color);
+                                    border-radius: var(--radius-md);
+                                  ">
               <div class="flex justify-between mb-sm">
-                <strong>Dr. Ahmed Ali</strong>
+                <strong>{{ $comment->doctor->full_name ?? 'Doctor' }}</strong>
                 <span class="text-secondary"
                   style="font-size: var(--font-size-sm)">{{ $comment->created_at->diffForHumans() }}</span>
               </div>
@@ -46,7 +62,9 @@
                 {{ $comment->comment_text }}
               </p>
             </div>
-          @endforeach
+          @empty
+            <p class="text-secondary">No comments yet.</p>
+          @endforelse
         </div>
       </div>
 
@@ -64,16 +82,16 @@
                   ->join('');
               @endphp
               <div style="
-                                width: 32px;
-                                height: 32px;
-                                background-color: var(--primary-color);
-                                border-radius: 50%;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                color: white;
-                                font-size: 12px;
-                              ">
+                                      width: 32px;
+                                      height: 32px;
+                                      background-color: var(--primary-color);
+                                      border-radius: 50%;
+                                      display: flex;
+                                      align-items: center;
+                                      justify-content: center;
+                                      color: white;
+                                      font-size: 12px;
+                                    ">
                 {{ $initials }}
               </div>
               <div>
@@ -91,16 +109,16 @@
               @endphp
               <li class="flex items-center gap-sm">
                 <div style="
-                                          width: 32px;
-                                          height: 32px;
-                                          background-color: var(--secondary-color);
-                                          border-radius: 50%;
-                                          display: flex;
-                                          align-items: center;
-                                          justify-content: center;
-                                          color: white;
-                                          font-size: 12px;
-                                        ">
+                                                      width: 32px;
+                                                      height: 32px;
+                                                      background-color: var(--secondary-color);
+                                                      border-radius: 50%;
+                                                      display: flex;
+                                                      align-items: center;
+                                                      justify-content: center;
+                                                      color: white;
+                                                      font-size: 12px;
+                                                    ">
                   {{ $initials }}
                 </div>
                 <div>{{ $member->student->full_name }}</div>
@@ -111,23 +129,35 @@
 
         <div class="card">
           <h2 class="section-title">Join Requests</h2>
-          <div class="p-md border rounded" style="
-                        border: 1px solid var(--border-color);
-                        border-radius: var(--radius-md);
-                      ">
-            <div class="flex justify-between items-center">
-              <div>
-                <strong>Ahmed Abdullah</strong>
-                <p class="text-secondary" style="font-size: var(--font-size-sm)">
-                  Second Year
-                </p>
-              </div>
-              <div class="flex gap-sm">
-                <button class="btn btn-primary btn-sm">Accept</button>
-                <button class="btn btn-danger btn-sm">Reject</button>
+          @forelse ($joinRequests as $request)
+            <div class="p-md border rounded mb-sm" style="
+                                      border: 1px solid var(--border-color);
+                                      border-radius: var(--radius-md);
+                                    ">
+              <div class="flex justify-between items-center">
+                <div>
+                  <strong>{{ $request->student->full_name ?? 'Unknown' }}</strong>
+                  <p class="text-secondary" style="font-size: var(--font-size-sm)">
+                    {{ $request->student->year ?? '' }} - {{ $request->student->department ?? '' }}
+                  </p>
+                </div>
+                <div class="flex gap-sm">
+                  <form action="{{ route('student.approve-request', ['id' => $request->request_id]) }}" method="POST"
+                    style="display: inline;">
+                    @csrf
+                    <button type="submit" class="btn btn-primary btn-sm">Accept</button>
+                  </form>
+                  <form action="{{ route('student.reject-request', ['id' => $request->request_id]) }}" method="POST"
+                    style="display: inline;">
+                    @csrf
+                    <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                  </form>
+                </div>
               </div>
             </div>
-          </div>
+          @empty
+            <p class="text-secondary">No pending join requests.</p>
+          @endforelse
         </div>
       </div>
     </div>

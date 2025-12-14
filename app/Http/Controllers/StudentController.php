@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\Project;
+use App\Models\ProjectMember;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -59,10 +60,22 @@ class StudentController extends Controller
   {
     $student = Auth::guard('student')->user();
 
-    // Get student's projects
-    $projects = Project::where('admin_id', $student->student_id)
+    // Get projects where student is admin
+    $adminProjects = Project::where('admin_id', $student->student_id)
       ->latest()
       ->get();
+
+    // Get projects where student is a member (approved)
+    $memberProjectIds = ProjectMember::where('student_id', $student->student_id)
+      ->where('join_status', 'approved')
+      ->pluck('project_id');
+
+    $memberProjects = Project::whereIn('project_id', $memberProjectIds)
+      ->latest()
+      ->get();
+
+    // Combine both collections
+    $projects = $adminProjects->merge($memberProjects)->unique('project_id');
 
     return view('student.home', compact('student', 'projects'));
   }
