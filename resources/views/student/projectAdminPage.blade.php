@@ -5,7 +5,11 @@
   <div class="container">
     <div class="flex justify-between items-center mb-lg">
       <h1 class="page-title">{{ $project->project_name }} (Admin View)</h1>
-      <span class="badge badge-info" style="font-size: 1rem; padding: 0.5rem 1rem">{{ ucfirst($project->status) }}</span>
+      @php
+        $statusLabels = ['not_graded' => 'Not Graded Yet', 'submitted' => 'Submitted', 'needs_work' => 'Needs More Work', 'pending' => 'Not Graded Yet'];
+      @endphp
+      <span class="badge badge-info"
+        style="font-size: 1rem; padding: 0.5rem 1rem">{{ $statusLabels[$project->status] ?? ucfirst($project->status) }}</span>
     </div>
 
     @if ($errors->any())
@@ -50,9 +54,9 @@
           <h2 class="section-title">Doctor's Comments</h2>
           @forelse ($comments as $comment)
             <div class="p-md mb-sm" style="
-                                    background-color: var(--background-color);
-                                    border-radius: var(--radius-md);
-                                  ">
+                                            background-color: var(--background-color);
+                                            border-radius: var(--radius-md);
+                                          ">
               <div class="flex justify-between mb-sm">
                 <strong>{{ $comment->doctor->full_name ?? 'Doctor' }}</strong>
                 <span class="text-secondary"
@@ -82,16 +86,16 @@
                   ->join('');
               @endphp
               <div style="
-                                      width: 32px;
-                                      height: 32px;
-                                      background-color: var(--primary-color);
-                                      border-radius: 50%;
-                                      display: flex;
-                                      align-items: center;
-                                      justify-content: center;
-                                      color: white;
-                                      font-size: 12px;
-                                    ">
+                                          width: 32px;
+                                          height: 32px;
+                                          background-color: var(--primary-color);
+                                          border-radius: 50%;
+                                          display: flex;
+                                          align-items: center;
+                                          justify-content: center;
+                                          color: white;
+                                          font-size: 12px;
+                                        ">
                 {{ $initials }}
               </div>
               <div>
@@ -109,16 +113,16 @@
               @endphp
               <li class="flex items-center gap-sm">
                 <div style="
-                                                      width: 32px;
-                                                      height: 32px;
-                                                      background-color: var(--secondary-color);
-                                                      border-radius: 50%;
-                                                      display: flex;
-                                                      align-items: center;
-                                                      justify-content: center;
-                                                      color: white;
-                                                      font-size: 12px;
-                                                    ">
+                                                              width: 32px;
+                                                              height: 32px;
+                                                              background-color: var(--secondary-color);
+                                                              border-radius: 50%;
+                                                              display: flex;
+                                                              align-items: center;
+                                                              justify-content: center;
+                                                              color: white;
+                                                              font-size: 12px;
+                                                            ">
                   {{ $initials }}
                 </div>
                 <div>{{ $member->student->full_name }}</div>
@@ -127,13 +131,28 @@
           </ul>
         </div>
 
+        @if($project->grade !== null)
+          <div class="card mb-md">
+            <h2 class="section-title">Grade & Feedback</h2>
+            <div class="text-center mb-md">
+              <span style="font-size: 2rem; font-weight: bold; color: var(--primary-color)">{{ $project->grade }}/100</span>
+            </div>
+            @if($project->feedback)
+              <div class="p-md" style="background-color: var(--background-color); border-radius: var(--radius-md);">
+                <p class="text-secondary" style="font-size: var(--font-size-sm); margin-bottom: 4px;">Doctor's Feedback:</p>
+                <p>{{ $project->feedback }}</p>
+              </div>
+            @endif
+          </div>
+        @endif
+
         <div class="card">
           <h2 class="section-title">Join Requests</h2>
           @forelse ($joinRequests as $request)
             <div class="p-md border rounded mb-sm" style="
-                                      border: 1px solid var(--border-color);
-                                      border-radius: var(--radius-md);
-                                    ">
+                                              border: 1px solid var(--border-color);
+                                              border-radius: var(--radius-md);
+                                            ">
               <div class="flex justify-between items-center">
                 <div>
                   <strong>{{ $request->student->full_name ?? 'Unknown' }}</strong>

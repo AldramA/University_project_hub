@@ -30,36 +30,41 @@
     <h2 class="section-title">My Projects</h2>
 
     <div class="grid md:grid-cols-2 gap-md">
-      @foreach ($projects as $project)
+      @forelse ($projects as $project)
+        @php
+          $statusLabels = ['not_graded' => 'Not Graded Yet', 'submitted' => 'Submitted', 'needs_work' => 'Needs More Work', 'pending' => 'Not Graded Yet'];
+        @endphp
         <!-- Project Card -->
         <div class="card">
           <div class="flex justify-between items-center mb-sm">
             <h3 style="font-weight: bold; font-size: var(--font-size-lg)">
               {{$project->project_name}}
             </h3>
-            <span class="badge badge-info">In Progress</span>
+            <span class="badge badge-info">{{ $statusLabels[$project->status] ?? ucfirst($project->status) }}</span>
           </div>
           <p class="text-secondary mb-md" style="font-size: var(--font-size-sm)">
             {{$project->description}}
-            operations.
           </p>
 
-          <div class="mb-md p-md" style="
-                          background-color: var(--background-color);
-                          border-radius: var(--radius-md);
-                        ">
-            <p class="text-secondary" style="font-size: 0.8rem; margin-bottom: 4px">
-              Latest comment from Dr. Ahmed Ali:
-            </p>
-            <p style="font-size: var(--font-size-sm)">
-              Please add more details about the user interfaces in the next
-              report.
-            </p>
-          </div>
+          @if($project->grade !== null)
+            <div class="mb-md p-md" style="
+                                background-color: var(--background-color);
+                                border-radius: var(--radius-md);
+                              ">
+              <p class="text-secondary" style="font-size: 0.8rem; margin-bottom: 4px">
+                Grade:
+              </p>
+              <p style="font-size: var(--font-size-lg); font-weight: bold; color: var(--primary-color)">
+                {{ $project->grade }}/100
+              </p>
+            </div>
+          @endif
 
           <a href="{{ route('student.project', $project->project_id) }}" class="btn btn-primary btn-block">Open Project</a>
         </div>
-      @endforeach
+      @empty
+        <p class="text-secondary">No projects yet. Create or join a project to get started!</p>
+      @endforelse
     </div>
   </div>
 

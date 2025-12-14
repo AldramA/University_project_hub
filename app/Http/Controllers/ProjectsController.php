@@ -198,4 +198,52 @@ class ProjectsController extends Controller
 
     return back()->with('success', 'Join request rejected.');
   }
+
+  /**==================
+   * Update Project Status (Doctor)
+  ====================*/
+  public function updateProjectStatus(Request $request, $id)
+  {
+    $project = Project::findOrFail($id);
+    $doctor = auth()->guard('doctor')->user();
+
+    // Authorization: Only assigned doctor can update status
+    if ($doctor->doctor_id != $project->doctor_id) {
+      return back()->withErrors(['error' => 'You are not authorized to update this project.']);
+    }
+
+    $validated = $request->validate([
+      'status' => ['required', 'string', 'in:not_graded,submitted,needs_work'],
+    ]);
+
+    $project->update(['status' => $validated['status']]);
+
+    return back()->with('success', 'Project status updated successfully!');
+  }
+
+  /**==================
+   * Grade Project (Doctor)
+  ====================*/
+  public function gradeProject(Request $request, $id)
+  {
+    $project = Project::findOrFail($id);
+    $doctor = auth()->guard('doctor')->user();
+
+    // Authorization: Only assigned doctor can grade
+    if ($doctor->doctor_id != $project->doctor_id) {
+      return back()->withErrors(['error' => 'You are not authorized to grade this project.']);
+    }
+
+    $validated = $request->validate([
+      'grade' => ['nullable', 'numeric', 'min:0', 'max:100'],
+      'feedback' => ['nullable', 'string', 'max:1000'],
+    ]);
+
+    $project->update([
+      'grade' => $validated['grade'],
+      'feedback' => $validated['feedback'],
+    ]);
+
+    return back()->with('success', 'Project graded successfully!');
+  }
 }

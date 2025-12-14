@@ -79,6 +79,8 @@ Route::prefix('doctor')->name('doctor.')->group(function () {
   });
 
   Route::post('/project/{id}/comment', [ProjectsController::class, 'storeComment'])->name('project.comment');
+  Route::post('/project/{id}/update-status', [ProjectsController::class, 'updateProjectStatus'])->name('project.update-status');
+  Route::post('/project/{id}/grade', [ProjectsController::class, 'gradeProject'])->name('project.grade');
 });
 
 // ==================

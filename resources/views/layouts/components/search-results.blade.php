@@ -8,11 +8,14 @@
   <div class="grid md:grid-cols-2 gap-md">
     @foreach ($projects as $project)
       <div class="card">
+        @php
+          $statusLabels = ['not_graded' => 'Not Graded Yet', 'submitted' => 'Submitted', 'needs_work' => 'Needs More Work', 'pending' => 'Not Graded Yet'];
+        @endphp
         <div class="flex justify-between items-center mb-sm">
           <h3 style="font-weight: bold">
             {{ $project->project_name }}
           </h3>
-          <span class="badge badge-success">{{ ucfirst($project->status) }}</span>
+          <span class="badge badge-success">{{ $statusLabels[$project->status] ?? ucfirst($project->status) }}</span>
         </div>
 
         <p class="text-secondary small mb-sm">
