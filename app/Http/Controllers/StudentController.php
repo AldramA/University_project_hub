@@ -10,10 +10,22 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
+/**
+ * StudentController
+ *
+ * Handles all student-related authentication, pages, and profile management.
+ * Students can register, view their home page, profile, and join projects.
+ */
 class StudentController extends Controller
 {
   /**
-   * Student Registration
+   * Handle student registration.
+   *
+   * Validates input, creates a new student account, and automatically
+   * logs in the new student.
+   *
+   * @param  Request  $request
+   * @return \Illuminate\Http\RedirectResponse
    */
   public function register(Request $request)
   {
@@ -53,9 +65,13 @@ class StudentController extends Controller
       ->with('success', 'Registration successful!');
   }
 
-  /**==================
-   * Student Home Page
-  ====================*/
+  /**
+   * Display the student's home page.
+   *
+   * Shows all projects where the student is either an admin or an approved member.
+   *
+   * @return \Illuminate\View\View
+   */
   public function home()
   {
     $student = Auth::guard('student')->user();
@@ -80,18 +96,26 @@ class StudentController extends Controller
     return view('student.home', compact('student', 'projects'));
   }
 
-  /**==================
-   * Student Join Project Page
-  ====================*/
+  /**
+   * Display the join project search page.
+   *
+   * @return \Illuminate\View\View
+   */
   public function joinProject()
   {
-
     return view('student.joinProject');
   }
 
-  /**==================
-   * Student Profile Page
-  ====================*/
+  /**
+   * Display the student's profile page.
+   *
+   * Shows student information and all their projects (admin and member).
+   * Only allows students to view their own profile.
+   *
+   * @param  int  $id  Student ID
+   * @return \Illuminate\View\View
+   * @throws \Symfony\Component\HttpKernel\Exception\HttpException
+   */
   public function profile($id)
   {
     $student = Auth::guard('student')->user();

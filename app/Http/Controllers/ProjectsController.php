@@ -10,11 +10,39 @@ use App\Models\ProjectMember;
 use App\Models\JoinRequest;
 use App\Models\Comment;
 
+/**
+ * ProjectsController
+ *
+ * Handles all project-related functionality for both students and doctors.
+ *
+ * Student Functions:
+ * - Create and store projects
+ * - View project pages (admin vs member view)
+ * - Search for projects
+ * - Request to join projects
+ * - Approve/reject join requests (admin only)
+ * - Update project links (admin only)
+ *
+ * Doctor Functions:
+ * - Store comments on projects
+ * - Update project status
+ * - Grade projects
+ */
 class ProjectsController extends Controller
 {
-  /**==================
-   * Student Create Project
-  ====================*/
+    /*
+    |--------------------------------------------------------------------------
+    | Student Project Management
+    |--------------------------------------------------------------------------
+    */
+
+  /**
+   * Display the create project form.
+   *
+   * Loads all available doctors and courses for the dropdown selections.
+   *
+   * @return \Illuminate\View\View
+   */
   public function createProject()
   {
     $doctors = Doctor::all();
@@ -22,59 +50,77 @@ class ProjectsController extends Controller
     return view('student.createProject', compact('doctors', 'courses'));
   }
 
-  /**==================
-   * Student Store Project
-  ====================*/
+  /**
+   * Store a new project.
+   *
+   * Creates a project with the current student as admin.
+   *
+   * @param  Request  $request
+   * @return \Illuminate\Http\RedirectResponse
+   */
   public function storeProject(Request $request)
   {
     $validated = $request->validate([
       'project_name' => ['required', 'string', 'max:255'],
-      'description' => ['required', 'string', 'max:255'],
-      'course_id' => ['required', 'string', 'max:255'],
-      'doctor_id' => ['required', 'string', 'max:255'],
+      'description'  => ['required', 'string', 'max:255'],
+      'course_id'    => ['required', 'string', 'max:255'],
+      'doctor_id'    => ['required', 'string', 'max:255'],
     ]);
 
     $validated['admin_id'] = auth()->guard('student')->user()->student_id;
-    $project = Project::create($validated);
+    Project::create($validated);
 
     return redirect()->route('student.home');
   }
 
-  /**==================
-   * Project Page
-  ====================*/
+  /**
+   * Display the project page.
+   *
+   * Shows different views based on user role:
+   * - Student admin: projectAdminPage (with join requests)
+   * - Student member: projectPage (view only)
+   * - Doctor: doctor.project (with grading options)
+   *
+   * @param  int  $id  Project ID
+   * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+   */
   public function projectPage($id)
   {
     $project = Project::findOrFail($id);
     $members = ProjectMember::where('project_id', $id)->get();
 
+    // Student view
     $student = auth()->guard('student')->user();
     if ($student) {
       $comments = Comment::where('project_id', $id)->get();
+
       if ($student->student_id == $project->admin_id) {
-        // Get pending join requests for admin view
+        // Admin view - includes join requests
         $joinRequests = JoinRequest::where('project_id', $id)
           ->where('status', 'pending')
           ->get();
         return view('student.projectAdminPage', compact('project', 'members', 'comments', 'joinRequests'));
       } else {
+        // Member view
         return view('student.projectPage', compact('project', 'members', 'comments'));
       }
     }
 
+    // Doctor view
     $doctor = auth()->guard('doctor')->user();
-    if ($doctor) {
-      if ($doctor->doctor_id == $project->doctor_id) {
-        return view('doctor.project', compact('project', 'members'));
-      }
+    if ($doctor && $doctor->doctor_id == $project->doctor_id) {
+      return view('doctor.project', compact('project', 'members'));
     }
 
     return redirect()->route('login');
   }
 
-  /**==================
-   * Search Project
-  ====================*/
+  /**
+   * Search for projects by name.
+   *
+   * @param  Request  $request
+   * @return \Illuminate\View\View
+   */
   public function search(Request $request)
   {
     $search = $request->input('search');
@@ -82,30 +128,21 @@ class ProjectsController extends Controller
     return view('layouts.components.search-results', compact('projects'));
   }
 
-  /**==================
-   * Store Comment
-  ====================*/
-  public function storeComment(Request $request, $id)
-  {
-    $validated = $request->validate([
-      'comment' => ['required', 'string', 'max:255'],
-    ]);
+    /*
+    |--------------------------------------------------------------------------
+    | Join Request Management (Student)
+    |--------------------------------------------------------------------------
+    */
 
-    Comment::create([
-      'comment_text' => $validated['comment'],
-      'project_id'   => $id,
-      'doctor_id'    => auth()->guard('doctor')->user()->doctor_id,
-    ]);
-
-
-    return redirect()
-      ->route('doctor.home')
-      ->with('success', 'Comment added successfully');
-  }
-
-  /**==================
-   * Join Project
-====================*/
+  /**
+   * Request to join a project.
+   *
+   * Validates that the student is not the admin or already a member,
+   * and creates a pending join request.
+   *
+   * @param  int  $id  Project ID
+   * @return \Illuminate\Http\RedirectResponse
+   */
   public function requestJoinProject($id)
   {
     $project = Project::findOrFail($id);
@@ -113,7 +150,8 @@ class ProjectsController extends Controller
 
     // Check if student is the project admin
     if ($project->admin_id == $studentId) {
-      return redirect()->route('student.join-project')->withErrors(['error' => 'You cannot join your own project.']);
+      return redirect()->route('student.join-project')
+        ->withErrors(['error' => 'You cannot join your own project.']);
     }
 
     // Check if student already has a pending request
@@ -123,7 +161,8 @@ class ProjectsController extends Controller
       ->first();
 
     if ($existingRequest) {
-      return redirect()->route('student.join-project')->withErrors(['error' => 'You already have a pending join request for this project.']);
+      return redirect()->route('student.join-project')
+        ->withErrors(['error' => 'You already have a pending join request for this project.']);
     }
 
     // Check if student is already a member
@@ -132,22 +171,29 @@ class ProjectsController extends Controller
       ->first();
 
     if ($existingMember) {
-      return redirect()->route('student.join-project')->withErrors(['error' => 'You are already a member of this project.']);
+      return redirect()->route('student.join-project')
+        ->withErrors(['error' => 'You are already a member of this project.']);
     }
 
     // Create join request
     JoinRequest::create([
       'project_id' => $id,
       'student_id' => $studentId,
-      'status' => 'pending',
+      'status'     => 'pending',
     ]);
 
-    return redirect()->route('student.join-project')->with('success', 'Join request sent successfully! Waiting for approval.');
+    return redirect()->route('student.join-project')
+      ->with('success', 'Join request sent successfully! Waiting for approval.');
   }
 
-  /**==================
-   * Approve Join Request
-  ====================*/
+  /**
+   * Approve a join request (Admin only).
+   *
+   * Updates the request status and adds the student as a project member.
+   *
+   * @param  int  $id  JoinRequest ID
+   * @return \Illuminate\Http\RedirectResponse
+   */
   public function approveJoinRequest($id)
   {
     $request = JoinRequest::findOrFail($id);
@@ -161,24 +207,27 @@ class ProjectsController extends Controller
 
     // Update request status
     $request->update([
-      'status' => 'approved',
+      'status'       => 'approved',
       'responded_at' => now(),
     ]);
 
     // Add student as project member
     ProjectMember::create([
-      'project_id' => $request->project_id,
-      'student_id' => $request->student_id,
-      'role' => 'member',
+      'project_id'  => $request->project_id,
+      'student_id'  => $request->student_id,
+      'role'        => 'member',
       'join_status' => 'approved',
     ]);
 
     return back()->with('success', 'Join request approved successfully!');
   }
 
-  /**==================
-   * Reject Join Request
-  ====================*/
+  /**
+   * Reject a join request (Admin only).
+   *
+   * @param  int  $id  JoinRequest ID
+   * @return \Illuminate\Http\RedirectResponse
+   */
   public function rejectJoinRequest($id)
   {
     $request = JoinRequest::findOrFail($id);
@@ -192,16 +241,83 @@ class ProjectsController extends Controller
 
     // Update request status
     $request->update([
-      'status' => 'rejected',
+      'status'       => 'rejected',
       'responded_at' => now(),
     ]);
 
     return back()->with('success', 'Join request rejected.');
   }
 
-  /**==================
-   * Update Project Status (Doctor)
-  ====================*/
+  /**
+   * Update project links (Admin only).
+   *
+   * Allows project admin to set GitHub and Drive/project links.
+   *
+   * @param  Request  $request
+   * @param  int  $id  Project ID
+   * @return \Illuminate\Http\RedirectResponse
+   */
+  public function updateProjectLinks(Request $request, $id)
+  {
+    $project = Project::findOrFail($id);
+    $student = auth()->guard('student')->user();
+
+    // Authorization: Only project admin can update links
+    if ($student->student_id != $project->admin_id) {
+      return back()->withErrors(['error' => 'You are not authorized to update this project.']);
+    }
+
+    $validated = $request->validate([
+      'github_link'  => ['nullable', 'url', 'max:500'],
+      'project_link' => ['nullable', 'url', 'max:500'],
+    ]);
+
+    $project->update([
+      'github_link'  => $validated['github_link'],
+      'project_link' => $validated['project_link'],
+    ]);
+
+    return back()->with('success', 'Project links updated successfully!');
+  }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Doctor Project Management
+    |--------------------------------------------------------------------------
+    */
+
+  /**
+   * Store a comment on a project (Doctor only).
+   *
+   * @param  Request  $request
+   * @param  int  $id  Project ID
+   * @return \Illuminate\Http\RedirectResponse
+   */
+  public function storeComment(Request $request, $id)
+  {
+    $validated = $request->validate([
+      'comment' => ['required', 'string', 'max:255'],
+    ]);
+
+    Comment::create([
+      'comment_text' => $validated['comment'],
+      'project_id'   => $id,
+      'doctor_id'    => auth()->guard('doctor')->user()->doctor_id,
+    ]);
+
+    return redirect()->route('doctor.home')
+      ->with('success', 'Comment added successfully');
+  }
+
+  /**
+   * Update project status (Doctor only).
+   *
+   * Status options: not_graded, submitted, needs_work
+   *
+   * @param  Request  $request
+   * @param  int  $id  Project ID
+   * @return \Illuminate\Http\RedirectResponse
+   */
   public function updateProjectStatus(Request $request, $id)
   {
     $project = Project::findOrFail($id);
@@ -221,9 +337,15 @@ class ProjectsController extends Controller
     return back()->with('success', 'Project status updated successfully!');
   }
 
-  /**==================
-   * Grade Project (Doctor)
-  ====================*/
+  /**
+   * Grade a project (Doctor only).
+   *
+   * Allows doctor to assign a grade (0-100) and provide feedback.
+   *
+   * @param  Request  $request
+   * @param  int  $id  Project ID
+   * @return \Illuminate\Http\RedirectResponse
+   */
   public function gradeProject(Request $request, $id)
   {
     $project = Project::findOrFail($id);
@@ -235,41 +357,15 @@ class ProjectsController extends Controller
     }
 
     $validated = $request->validate([
-      'grade' => ['nullable', 'numeric', 'min:0', 'max:100'],
+      'grade'    => ['nullable', 'numeric', 'min:0', 'max:100'],
       'feedback' => ['nullable', 'string', 'max:1000'],
     ]);
 
     $project->update([
-      'grade' => $validated['grade'],
+      'grade'    => $validated['grade'],
       'feedback' => $validated['feedback'],
     ]);
 
     return back()->with('success', 'Project graded successfully!');
-  }
-
-  /**==================
-   * Update Project Links (Student Admin)
-  ====================*/
-  public function updateProjectLinks(Request $request, $id)
-  {
-    $project = Project::findOrFail($id);
-    $student = auth()->guard('student')->user();
-
-    // Authorization: Only project admin can update links
-    if ($student->student_id != $project->admin_id) {
-      return back()->withErrors(['error' => 'You are not authorized to update this project.']);
-    }
-
-    $validated = $request->validate([
-      'github_link' => ['nullable', 'url', 'max:500'],
-      'project_link' => ['nullable', 'url', 'max:500'],
-    ]);
-
-    $project->update([
-      'github_link' => $validated['github_link'],
-      'project_link' => $validated['project_link'],
-    ]);
-
-    return back()->with('success', 'Project links updated successfully!');
   }
 }

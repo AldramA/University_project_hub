@@ -48,8 +48,7 @@
         </div>
 
         <div class="flex gap-sm mt-lg">
-          <a href="{{ route('student.home', Auth::guard('student')->user()->student_id) }}" class="btn btn-outline"
-            style="flex: 1">Cancel</a>
+          <a href="{{ route('student.home') }}" class="btn btn-outline" style="flex: 1">Cancel</a>
           <button type="submit" class="btn btn-primary" style="flex: 1">
             Create Project
           </button>
