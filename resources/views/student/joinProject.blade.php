@@ -12,6 +12,14 @@
         </ul>
       </div>
     @endif
+
+    @if (session('success'))
+      <div class="alert alert-success"
+        style="background: #10b981; color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+        {{ session('success') }}
+      </div>
+    @endif
+
     <h1 class="page-title mb-lg">Join a Project</h1>
 
     <!-- Search Section -->

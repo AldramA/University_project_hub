@@ -7,6 +7,7 @@ use App\Models\Doctor;
 use App\Models\Course;
 use App\Models\Project;
 use App\Models\ProjectMember;
+use App\Models\JoinRequest;
 use App\Models\Comment;
 
 class ProjectsController extends Controller
@@ -78,6 +79,9 @@ class ProjectsController extends Controller
     return view('layouts.components.search-results', compact('projects'));
   }
 
+  /**==================
+   * Store Comment
+  ====================*/
   public function storeComment(Request $request, $id)
   {
     $validated = $request->validate([
@@ -94,5 +98,47 @@ class ProjectsController extends Controller
     return redirect()
       ->route('doctor.home')
       ->with('success', 'Comment added successfully');
+  }
+
+  /**==================
+   * Join Project
+====================*/
+  public function requestJoinProject($id)
+  {
+    $project = Project::findOrFail($id);
+    $studentId = auth()->guard('student')->user()->student_id;
+
+    // Check if student is the project admin
+    if ($project->admin_id == $studentId) {
+      return redirect()->route('student.join-project')->withErrors(['error' => 'You cannot join your own project.']);
+    }
+
+    // Check if student already has a pending request
+    $existingRequest = JoinRequest::where('project_id', $id)
+      ->where('student_id', $studentId)
+      ->where('status', 'pending')
+      ->first();
+
+    if ($existingRequest) {
+      return redirect()->route('student.join-project')->withErrors(['error' => 'You already have a pending join request for this project.']);
+    }
+
+    // Check if student is already a member
+    $existingMember = ProjectMember::where('project_id', $id)
+      ->where('student_id', $studentId)
+      ->first();
+
+    if ($existingMember) {
+      return redirect()->route('student.join-project')->withErrors(['error' => 'You are already a member of this project.']);
+    }
+
+    // Create join request
+    JoinRequest::create([
+      'project_id' => $id,
+      'student_id' => $studentId,
+      'status' => 'pending',
+    ]);
+
+    return redirect()->route('student.join-project')->with('success', 'Join request sent successfully! Waiting for approval.');
   }
 }

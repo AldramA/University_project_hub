@@ -48,7 +48,6 @@ Route::prefix('student')->name('student.')->group(function () {
     Route::get('/home', [StudentController::class, 'home'])->name('home');
     Route::get('/profile/{id}', [StudentController::class, 'profile'])->name('profile');
     Route::get('/join-project', [StudentController::class, 'joinProject'])->name('join-project');
-    Route::post('/logout', [StudentController::class, 'logout'])->name('logout');
 
     // Project routes for students
     Route::get('/create-project', [ProjectsController::class, 'createProject'])->name('create-project');
@@ -57,9 +56,9 @@ Route::prefix('student')->name('student.')->group(function () {
 
     Route::get('/project/{id}', [ProjectsController::class, 'projectPage'])->name('project');
 
-    Route::get('/logout', [CommonController::class, 'logout'])->name('logout');
-
     Route::post('/project-search', [ProjectsController::class, 'search'])->name('project-search');
+    
+    Route::post('/request-join-project/{id}', [ProjectsController::class, 'requestJoinProject'])->name('request-join-project');
   });
 });
 
