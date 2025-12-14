@@ -41,10 +41,15 @@ class DoctorController extends Controller
   }
 
   /**
-   * Display the doctor's dashboard with project statistics.
+   * Display the doctor's dashboard with comprehensive project statistics.
    *
-   * Shows project counts by status and lists pending projects
-   * that require attention.
+   * Shows:
+   * - Total project counts
+   * - Projects by status
+   * - Average grade
+   * - Projects awaiting grading
+   * - Recently graded projects
+   * - All projects list
    *
    * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
    */
@@ -57,26 +62,59 @@ class DoctorController extends Controller
         ->with('error', 'You must be logged in to access this page');
     }
 
-    $projects = Project::where('doctor_id', $doctor->doctor_id)->get();
+    // Get all projects for this doctor
+    $projects = Project::where('doctor_id', $doctor->doctor_id)
+      ->with(['course', 'admin'])
+      ->get();
 
     // Count projects by status
-    $statuses = ['needs_work', 'submitted', 'not_graded'];
-    $statusCounts = [];
-    foreach ($statuses as $status) {
-      $statusCounts[$status] = 0;
-    }
+    $statusCounts = [
+      'not_graded' => 0,
+      'submitted' => 0,
+      'needs_work' => 0,
+    ];
+
     foreach ($projects as $project) {
-      if (in_array($project->status, $statuses)) {
-        $statusCounts[$project->status]++;
+      $status = $project->status;
+      // Map old statuses to new ones
+      if ($status === 'pending') $status = 'not_graded';
+
+      if (isset($statusCounts[$status])) {
+        $statusCounts[$status]++;
       }
     }
 
-    // Get projects that are not yet graded
-    $pendingProjects = Project::where('doctor_id', $doctor->doctor_id)
-      ->where('status', 'not_graded')
-      ->orWhere('status', 'pending')
+    // Calculate average grade (only for graded projects)
+    $gradedProjects = $projects->whereNotNull('grade');
+    $averageGrade = $gradedProjects->count() > 0
+      ? round($gradedProjects->avg('grade'), 1)
+      : null;
+
+    // Projects awaiting grading (not_graded or pending status)
+    $pendingProjects = $projects->filter(function ($project) {
+      return in_array($project->status, ['not_graded', 'pending']);
+    });
+
+    // Recently graded projects (last 5)
+    $recentlyGraded = Project::where('doctor_id', $doctor->doctor_id)
+      ->whereNotNull('grade')
+      ->with(['course', 'admin'])
+      ->orderBy('updated_at', 'desc')
+      ->take(5)
       ->get();
 
-    return view('doctor.dashboard', compact('projects', 'statusCounts', 'pendingProjects'));
+    // Total counts
+    $totalProjects = $projects->count();
+    $totalGraded = $gradedProjects->count();
+
+    return view('doctor.dashboard', compact(
+      'projects',
+      'statusCounts',
+      'pendingProjects',
+      'recentlyGraded',
+      'averageGrade',
+      'totalProjects',
+      'totalGraded'
+    ));
   }
 }

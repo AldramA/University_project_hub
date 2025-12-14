@@ -332,6 +332,11 @@ class ProjectsController extends Controller
       'status' => ['required', 'string', 'in:not_graded,submitted,needs_work'],
     ]);
 
+    // Cannot set status to 'submitted' without grading first
+    if ($validated['status'] === 'submitted' && $project->grade === null) {
+      return back()->withErrors(['error' => 'You must grade the project before marking it as Submitted.']);
+    }
+
     $project->update(['status' => $validated['status']]);
 
     return back()->with('success', 'Project status updated successfully!');

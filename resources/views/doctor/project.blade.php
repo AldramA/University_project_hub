@@ -39,9 +39,9 @@
             {{ $project->description }}
           </p>
           <div class="flex items-center gap-sm p-sm bg-gray-50 rounded" style="
-                              background-color: var(--background-color);
-                              border-radius: var(--radius-md);
-                            ">
+                                background-color: var(--background-color);
+                                border-radius: var(--radius-md);
+                              ">
             <span class="text-secondary">Github Link:</span>
             @if($project->github_link)
               <a href="{{ $project->github_link }}" target="_blank"
@@ -52,9 +52,9 @@
           </div>
           <br>
           <div class="flex items-center gap-sm p-sm bg-gray-50 rounded" style="
-                              background-color: var(--background-color);
-                              border-radius: var(--radius-md);
-                            ">
+                                background-color: var(--background-color);
+                                border-radius: var(--radius-md);
+                              ">
             <span class="text-secondary">Project Link:</span>
             @if($project->project_link)
               <a href="{{ $project->project_link }}" target="_blank"
@@ -90,7 +90,7 @@
               <label class="form-label">Update Status</label>
               <select name="status" class="form-select mb-md">
                 <option value="not_graded" {{ $project->status == 'not_graded' || $project->status == 'pending' ? 'selected' : '' }}>Not Graded Yet</option>
-                <option value="submitted" {{ $project->status == 'submitted' ? 'selected' : '' }}>Submitted</option>
+                <option value="submitted" {{ $project->status == 'submitted' ? 'selected' : '' }} {{ $project->grade === null ? 'disabled' : '' }}>Submitted {{ $project->grade === null ? '(Grade first)' : '' }}</option>
                 <option value="needs_work" {{ $project->status == 'needs_work' || $project->status == 'needs_revision' ? 'selected' : '' }}>Needs More Work</option>
               </select>
             </div>
@@ -132,16 +132,16 @@
                   ->join('');
               @endphp
               <div style="
-                                  width: 32px;
-                                  height: 32px;
-                                  background-color: var(--primary-color);
-                                  border-radius: 50%;
-                                  display: flex;
-                                  align-items: center;
-                                  justify-content: center;
-                                  color: white;
-                                  font-size: 12px;
-                                ">
+                                    width: 32px;
+                                    height: 32px;
+                                    background-color: var(--primary-color);
+                                    border-radius: 50%;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    color: white;
+                                    font-size: 12px;
+                                  ">
                 {{ $initials }}
               </div>
               <div>
@@ -159,16 +159,16 @@
               @endphp
               <li class="flex items-center gap-sm">
                 <div style="
-                                              width: 32px;
-                                              height: 32px;
-                                              background-color: var(--secondary-color);
-                                              border-radius: 50%;
-                                              display: flex;
-                                              align-items: center;
-                                              justify-content: center;
-                                              color: white;
-                                              font-size: 12px;
-                                            ">
+                                                  width: 32px;
+                                                  height: 32px;
+                                                  background-color: var(--secondary-color);
+                                                  border-radius: 50%;
+                                                  display: flex;
+                                                  align-items: center;
+                                                  justify-content: center;
+                                                  color: white;
+                                                  font-size: 12px;
+                                                ">
                   {{ $initials }}
                 </div>
                 <div>{{ $member->student->full_name }}</div>
